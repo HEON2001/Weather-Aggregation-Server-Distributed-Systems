@@ -9,14 +9,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 public class parser 
 {
-    private static ObjectMapper objectMapper = getDefaultObjectMapper();
+    //private static ObjectMapper objectMapper = getDefaultObjectMapper();
 
-    private static ObjectMapper getDefaultObjectMapper() {
-        ObjectMapper defaultObjectMapper = new ObjectMapper();
-        return defaultObjectMapper;
-    }
-
-    public static JsonNode parse( String arg ) throws IOException
+    public static String parse( String arg ) throws IOException
     {
         Scanner scanner = new Scanner(new File(arg));
         String[] lines = new String[17];
@@ -26,17 +21,16 @@ public class parser
 
         while (scanner.hasNextLine()) {
             lines[i] = scanner.nextLine();
-            //System.out.println(lines[i]);
-            //System.out.println(scanner.nextLine());
-            StringTokenizer st = new StringTokenizer(lines[i],":");
-            jsonSource += " \"" + st.nextToken()+ "\": " + " \"" + st.nextToken() + "\",";
+            String[] str = lines[i].split(":", 2);
+            //StringTokenizer st = new StringTokenizer(lines[i],":");
+            jsonSource += " \"" + str[0]+ "\":"+ " \"" + str[1] + "\",";
             i++;
         }
 
         jsonSource = jsonSource.substring(0, jsonSource.length() - 1);
         jsonParsed = "{" + jsonSource + "}";
         
-        return objectMapper.readTree(jsonParsed);
+        return jsonParsed;
     }
 
 }
