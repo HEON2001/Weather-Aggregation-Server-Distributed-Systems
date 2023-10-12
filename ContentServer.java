@@ -11,26 +11,19 @@ import java.io.File;
 
 
 public class ContentServer {
-
-    /* 
-        private static ObjectMapper getDefaultObjectMapper() {
-            ObjectMapper defaultObjectMapper = new ObjectMapper();
-            return defaultObjectMapper;
-        }
-
-        private static ObjectMapper objectMapper = getDefaultObjectMapper();
-    */ 
     
-    public ContentServer() throws Exception
+    public ContentServer(String file, int port) throws Exception
     {
-        parser p = new parser();
-        String nodeString = p.parse("test_file01.txt");
+        int p = port;
+        parser parse = new parser();
+        String nodeString = parse.parse(file);
         String message = "PUT /weather.json HTTP/1.1\n" +
                          "User-Agent: ATOMClient/1/0\n" +
                          "Content-Type: Weather-Data\n" +
                          "Content-Length: " + nodeString.length() + "\n" + nodeString;
 
-        Socket socket = new Socket("localhost", 4567);
+        Socket socket = new Socket("localhost", p);
+
         ObjectOutputStream outStream = new ObjectOutputStream(socket.getOutputStream());
         ObjectInputStream inStream = new ObjectInputStream(socket.getInputStream());
 
@@ -48,15 +41,13 @@ public class ContentServer {
 
     public static void main(String[] args)throws Exception
     {   
-        new ContentServer();
-
-        try{
-            //String nodeString = p.parse("test_file01.txt");
-            //node = objectMapper.readTree(nodeString);
-            //System.out.println(node.get("cloud").asText());
-        }
-        catch(Exception e){
-            System.out.println("Error: " + e);
+        if(args.length==0){
+            System.out.println("Error: No file provided");
+            System.exit(0);
+        }else if(args.length==1){
+            new ContentServer(args[0], 4567);
+        }else if(args.length>1){
+            new ContentServer(args[0], Integer.parseInt(args[1]));
         }
     }
 }

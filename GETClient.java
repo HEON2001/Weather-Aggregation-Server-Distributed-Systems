@@ -1,90 +1,50 @@
 package aggserver;
 
-import java.net.Socket;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.util.StringTokenizer;
+import javax.swing.text.html.HTMLEditorKit.Parser;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 import java.util.Scanner;
+import java.io.File;
 
-public class GETClient{
 
-    private Socket socket;
-    private BufferedReader bufferedReader;
-    private BufferedWriter bufferedWriter;
-    private String username;
+public class GETClient {
+    
+    public GETClient(String req, int port) throws Exception
+    {
+        int p = port;
+        String r = req;
+        String message = "GET /weather.json HTTP/1.1\n" +
+                         "User-Agent: ATOMClient/1/0\n" + r;
 
-    public GETClient(Socket socket, String username){
-        try{
-            this.socket = socket;
-            this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            this.username = username;
+        Socket socket = new Socket("localhost", p);
 
-        } catch(IOException e){
-            closeEverything(socket, bufferedReader, bufferedWriter);
+        ObjectOutputStream outStream = new ObjectOutputStream(socket.getOutputStream());
+        ObjectInputStream inStream = new ObjectInputStream(socket.getInputStream());
+
+        Packet packet = new Packet(message);
+        outStream.writeObject(packet);
+
+        Packet rPacket = (Packet)inStream.readObject();
+        System.out.println(rPacket.message);
+
+        socket.close();
+        outStream.close();
+        inStream.close();
+
+    }
+
+    public static void main(String[] args)throws Exception
+    {   
+        if(args.length==0){
+            System.out.println("Error: No request provided");
+            System.exit(0);
+        }else if(args.length==1){
+            new GETClient(args[0], 4567);
+        }else if(args.length>1){
+            new GETClient(args[0], Integer.parseInt(args[1]));
         }
-    }
-
-    public void sendMessage(){
-        try{
-            bufferedWriter.write(username);
-            bufferedWriter.newLine();
-            bufferedWriter.flush();
-
-            Scanner scanner = new Scanner(System.in);
-            while(socket.isConnected()){
-                String messageToSend = scanner.nextLine();
-                bufferedWriter.write(username + ":" + messageToSend);
-                bufferedWriter.newLine();
-                bufferedWriter.flush();
-            }
-        } catch(IOException e){
-            closeEverything(socket, bufferedReader, bufferedWriter);
-        }
-    }
-
-    public void listenForMessage(){
-        new Thread(new Runnable(){
-            public void run(){
-                String messageFromGroupChat;
-                while(socket.isConnected()){
-                    try{
-                        messageFromGroupChat = bufferedReader.readLine();
-                        System.out.println(messageFromGroupChat);
-                    } catch(IOException e){
-                        closeEverything(socket, bufferedReader, bufferedWriter);
-                    }
-                }
-            }
-        }).start();
-    }
-
-    public void closeEverything(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter){
-        try{
-            if(socket != null){
-                socket.close();
-            }
-            if(bufferedReader != null){
-                bufferedReader.close();
-            }
-            if(bufferedWriter != null){
-                bufferedWriter.close();
-            }
-
-        } catch(IOException e){
-            e.getStackTrace();
-        }
-    }
-
-    public static void main(String[] args) throws IOException{
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter your username: ");
-        String username = scanner.nextLine();
-        Socket socket = new Socket("localhost", 1234);
-        GETClient client = new GETClient(socket, username);
-        client.listenForMessage();
-        client.sendMessage();
     }
 }
