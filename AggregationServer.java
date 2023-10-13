@@ -11,6 +11,8 @@ import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.util.Timer;
+import java.util.Date;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -20,15 +22,25 @@ public class AggregationServer {
 
     private ServerSocket serverSocket;
 
+    //timer variables
+    static long startTime = System.currentTimeMillis();
+    static long elapsedTime = 0L;
+
     public AggregationServer(ServerSocket serverSocket) {
         //Pass in the server socket
         this.serverSocket = serverSocket;
     }
 
     public void startServer() throws Exception{
+
         try{
             //While the server socket is open, accept connections
             while(!serverSocket.isClosed()){
+
+                File f = new File("weather.txt");
+
+                //Update timer
+                elapsedTime = (new Date()).getTime() - startTime;
 
                 Socket socket = serverSocket.accept();
 
@@ -47,6 +59,9 @@ public class AggregationServer {
                     writer.close();
                     Packet sPacket = new Packet("201 - HTTP_CREATED");
                     outStream.writeObject(sPacket);
+
+                    elapsedTime = 0L; //reset timer
+
                 }
                 //GET Request
                 else if(Message[0].equals("GET /weather.json HTTP/1.1") && Message[1].equals("User-Agent: ATOMClient/1/0")){
@@ -56,6 +71,11 @@ public class AggregationServer {
                     JsonNode node = objectMapper.readTree(line);
                     Packet sPacket = new Packet(node.get(Message[2]).asText());
                     outStream.writeObject(sPacket);
+
+                    //if file is older than 30 seconds, delete it
+                    if(elapsedTime > 30000){
+                        f.delete();
+                    }
     
                 }
                 //Bad Request
@@ -82,6 +102,7 @@ public class AggregationServer {
         //Creating and running AggregationServer object
         ServerSocket serverSocket = new ServerSocket(port);
         AggregationServer server = new AggregationServer(serverSocket);
+
         server.startServer();
     }
 
