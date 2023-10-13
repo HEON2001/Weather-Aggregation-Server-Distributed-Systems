@@ -16,20 +16,25 @@ public class GETClient {
     {
         int p = port;
         String r = req;
+        //Assembling GET message
         String message = "GET /weather.json HTTP/1.1\n" +
                          "User-Agent: ATOMClient/1/0\n" + r;
 
+        //Establish connection
         Socket socket = new Socket("localhost", p);
 
         ObjectOutputStream outStream = new ObjectOutputStream(socket.getOutputStream());
         ObjectInputStream inStream = new ObjectInputStream(socket.getInputStream());
 
+        //Sending GET message to AggregationServer
         Packet packet = new Packet(message);
         outStream.writeObject(packet);
 
+        //Receiving response from AggregationServer
         Packet rPacket = (Packet)inStream.readObject();
         System.out.println(rPacket.message);
 
+        //Closing socket and streams
         socket.close();
         outStream.close();
         inStream.close();
@@ -38,13 +43,20 @@ public class GETClient {
 
     public static void main(String[] args)throws Exception
     {   
-        if(args.length==0){
-            System.out.println("Error: No request provided");
-            System.exit(0);
-        }else if(args.length==1){
-            new GETClient(args[0], 4567);
-        }else if(args.length>1){
-            new GETClient(args[0], Integer.parseInt(args[1]));
+        //Default port
+        int port = 4567; 
+        //Checking for port argument
+        if(args.length>0){
+            port = Integer.parseInt(args[0]);
         }
+
+        //Keep scanning for GET requests
+        while(true){
+            Scanner sc = new Scanner(System.in);
+            System.out.println("Enter request: ");
+            String req = sc.nextLine();
+            new GETClient(req, port);
+        }
+
     }
 }
