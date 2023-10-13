@@ -1,0 +1,22 @@
+
+Creating content:
+201 - HTTP_CREATED
+
+Regular requests:
+IDS60901
+15/04:00pm
+Adelaide (West Terrace /  ngayirdapira)
+
+Request not found failure:
+204 - HTTP_NO_CONTENT
+
+Sleeping for 30 seconds...
+204 - HTTP_NO_CONTENT
+
+Created and OK responses:
+201 - HTTP_CREATED
+200 - HTTP_OK
+
+Bad and No Content response:
+400 - HTTP_BAD_REQUEST
+204 - HTTP_NO_CONTENT

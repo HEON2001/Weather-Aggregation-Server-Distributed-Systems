@@ -1,7 +1,7 @@
 
 # Compile java files, start registry then run server
 compile:
-	javac -d . -classpath jackson-databind-2.15.2.jar:jackson-core-2.15.2.jar:jackson-annotations-2.15.2.jar: ContentServer.java AggregationServer.java Packet.java parser.java GETClient.java
+	javac -d . -classpath jackson-databind-2.15.2.jar:jackson-core-2.15.2.jar:jackson-annotations-2.15.2.jar: ContentServer.java AggregationServer.java Packet.java parser.java GETClient.java test.java
 # Run AggregationServer
 server:
 	java -cp jackson-core-2.15.2.jar:jackson-databind-2.15.2.jar:jackson-annotations-2.15.2.jar: aggserver.AggregationServer
@@ -11,6 +11,9 @@ content:
 # Run GETClient
 client:
 	java -cp jackson-core-2.15.2.jar:jackson-databind-2.15.2.jar:jackson-annotations-2.15.2.jar: aggserver.GETClient
+# Run test
+test:
+	java -cp jackson-core-2.15.2.jar:jackson-databind-2.15.2.jar:jackson-annotations-2.15.2.jar: aggserver.test
 # Clean compiled files
 clean:
 	rm -rf aggserver/*.class

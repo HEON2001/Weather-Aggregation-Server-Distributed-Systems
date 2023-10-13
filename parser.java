@@ -1,15 +1,16 @@
 package aggserver;
 
 import java.util.StringTokenizer;
-import java.io.IOException;
 import java.util.Scanner;
 import java.io.File;
+import java.util.Arrays;
 
 public class parser 
 {
 
-    public static String parse( String arg ) throws IOException
+    public static String parse( String arg )throws Exception
     {   
+        try{
         //Scanning file into string array
         Scanner scanner = new Scanner(new File(arg));
         String[] lines = new String[17];
@@ -30,7 +31,7 @@ public class parser
         jsonParsed = "{" + jsonSource + "}";
         
         //Return JSON formatted string
-        return jsonParsed;
+        return jsonParsed;}catch(ArrayIndexOutOfBoundsException e){return "Error";}
     }
 
 }

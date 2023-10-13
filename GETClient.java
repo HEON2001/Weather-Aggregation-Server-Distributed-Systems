@@ -20,25 +20,28 @@ public class GETClient {
         String message = "GET /weather.json HTTP/1.1\n" +
                          "User-Agent: ATOMClient/1/0\n" + r;
 
-        //Establish connection
-        Socket socket = new Socket("localhost", p);
+        try{
+            //Establish connection
+            Socket socket = new Socket("localhost", p);
 
-        ObjectOutputStream outStream = new ObjectOutputStream(socket.getOutputStream());
-        ObjectInputStream inStream = new ObjectInputStream(socket.getInputStream());
+            ObjectOutputStream outStream = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream inStream = new ObjectInputStream(socket.getInputStream());
 
-        //Sending GET message to AggregationServer
-        Packet packet = new Packet(message);
-        outStream.writeObject(packet);
+            //Sending GET message to AggregationServer
+            Packet packet = new Packet(message);
+            outStream.writeObject(packet);
 
-        //Receiving response from AggregationServer
-        Packet rPacket = (Packet)inStream.readObject();
-        System.out.println(rPacket.message);
+            //Receiving response from AggregationServer
+            Packet rPacket = (Packet)inStream.readObject();
+            System.out.println(rPacket.message);
 
-        //Closing socket and streams
-        socket.close();
-        outStream.close();
-        inStream.close();
-
+            //Closing socket and streams
+            socket.close();
+            outStream.close();
+            inStream.close();
+        }catch(Exception e){
+            System.out.println("Error, could not connect to server");
+        }
     }
 
     public static void main(String[] args)throws Exception

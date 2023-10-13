@@ -21,31 +21,41 @@ public class ContentServer {
 
         //Parsing the file into JSON format using implemented parser
         String nodeString = parse.parse(file);
+        String message = "";
+
         //Assembling PUT message
-        String message = "PUT /weather.json HTTP/1.1\n" +
+        if(nodeString.equals("Error")){
+            nodeString = "Error";
+        }else{
+            message = "PUT /weather.json HTTP/1.1\n" +
                          "User-Agent: ATOMClient/1/0\n" +
                          "Content-Type: Weather-Data\n" +
                          "Content-Length: " + nodeString.length() + "\n" + nodeString;
+        }
 
-        //Creating socket and streams
-        Socket socket = new Socket("localhost", p);
+       try{
+            //Creating socket and streams
+            Socket socket = new Socket("localhost", p);
 
-        ObjectOutputStream outStream = new ObjectOutputStream(socket.getOutputStream());
-        ObjectInputStream inStream = new ObjectInputStream(socket.getInputStream());
+            ObjectOutputStream outStream = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream inStream = new ObjectInputStream(socket.getInputStream());
 
-        //Sending PUT message to AggregationServer
-        Packet packet = new Packet(message);
-        outStream.writeObject(packet);
+            //Sending PUT message to AggregationServer
+            Packet packet = new Packet(message);
+            outStream.writeObject(packet);
 
-        //Receiving response from AggregationServer =
-        Packet rPacket = (Packet)inStream.readObject();
-        System.out.println(rPacket.message);
+            //Receiving response from AggregationServer =
+            Packet rPacket = (Packet)inStream.readObject();
+            System.out.println(rPacket.message);
 
-        //Closing socket and streams
-        socket.close();
-        outStream.close();
-        inStream.close();
+            //Closing socket and streams
+            socket.close();
+            outStream.close();
+            inStream.close();
 
+       }catch (Exception e){
+           System.out.println("Error, could not connect to server");
+       }
     }
 
     public static void main(String[] args)throws Exception

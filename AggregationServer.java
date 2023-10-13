@@ -75,22 +75,19 @@ public class AggregationServer {
                         System.out.println("File is older than 30 seconds, deleting...");
                         f.delete();
                     }
-                    
-                    try{BufferedReader reader = new BufferedReader(new FileReader("weather.txt"));
+                    try{
+                    BufferedReader reader = new BufferedReader(new FileReader("weather.txt"));
                     String line = reader.readLine();
                     ObjectMapper objectMapper = new ObjectMapper();
-                    JsonNode node = null;
-                    try{
-                        node = objectMapper.readTree(line);
-                    } catch(Exception e){
-                        Packet sPacket = new Packet("500 - INTERNAL_SERVER_ERROR");
-                        outStream.writeObject(sPacket);
-                    }
+                    JsonNode node = objectMapper.readTree(line);
                     Packet sPacket = new Packet(node.get(Message[2]).asText());
                     outStream.writeObject(sPacket);} catch(Exception e){
                         Packet sPacket = new Packet("204 - HTTP_NO_CONTENT");
                         outStream.writeObject(sPacket);
                     }
+                }else if(Message[0].equals("Error")){
+                    Packet sPacket = new Packet("500 - INTERNAL_SERVER_ERROR");
+                    outStream.writeObject(sPacket);
                 }
                 //Bad Request
                 else{
