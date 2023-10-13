@@ -25,6 +25,7 @@ public class AggregationServer {
     //timer variables
     static long startTime = System.currentTimeMillis();
     static long elapsedTime = 0L;
+    static File f = new File("weather.txt");
 
     public AggregationServer(ServerSocket serverSocket) {
         //Pass in the server socket
@@ -36,11 +37,6 @@ public class AggregationServer {
         try{
             //While the server socket is open, accept connections
             while(!serverSocket.isClosed()){
-
-                File f = new File("weather.txt");
-
-                //Update timer
-                elapsedTime = (new Date()).getTime() - startTime;
 
                 Socket socket = serverSocket.accept();
 
@@ -54,29 +50,35 @@ public class AggregationServer {
 
                 //PUT Request
                 if(Message[0].equals("PUT /weather.json HTTP/1.1") && Message[1].equals("User-Agent: ATOMClient/1/0")){
+                    if(!f.exists()){
+                        Packet sPacket = new Packet("201 - HTTP_CREATED");
+                        outStream.writeObject(sPacket);
+                    }else{
+                        Packet sPacket = new Packet("200 - HTTP_OK");
+                        outStream.writeObject(sPacket);
+                    }
                     BufferedWriter writer = new BufferedWriter(new FileWriter("weather.txt"));
                     writer.write(Message[4]);
                     writer.close();
-                    Packet sPacket = new Packet("201 - HTTP_CREATED");
-                    outStream.writeObject(sPacket);
 
                     elapsedTime = 0L; //reset timer
 
                 }
                 //GET Request
                 else if(Message[0].equals("GET /weather.json HTTP/1.1") && Message[1].equals("User-Agent: ATOMClient/1/0")){
+                    
+                    //if file is older than 30 seconds, delete it
+                    elapsedTime = (new Date()).getTime() - startTime;
+                    if(elapsedTime >= 30000){
+                        f.delete();
+                    }
+                    
                     BufferedReader reader = new BufferedReader(new FileReader("weather.txt"));
                     String line = reader.readLine();
                     ObjectMapper objectMapper = new ObjectMapper();
                     JsonNode node = objectMapper.readTree(line);
                     Packet sPacket = new Packet(node.get(Message[2]).asText());
                     outStream.writeObject(sPacket);
-
-                    //if file is older than 30 seconds, delete it
-                    if(elapsedTime > 30000){
-                        f.delete();
-                    }
-    
                 }
                 //Bad Request
                 else{
@@ -102,6 +104,8 @@ public class AggregationServer {
         //Creating and running AggregationServer object
         ServerSocket serverSocket = new ServerSocket(port);
         AggregationServer server = new AggregationServer(serverSocket);
+
+        f.delete(); //delete leftover file if exists
 
         server.startServer();
     }

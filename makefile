@@ -5,7 +5,6 @@ compile:
 # Run AggregationServer
 server:
 	java -cp jackson-core-2.15.2.jar:jackson-databind-2.15.2.jar:jackson-annotations-2.15.2.jar: aggserver.AggregationServer
-	rm -rf weather.txt
 # Run ContentServer
 content:
 	java -cp jackson-core-2.15.2.jar:jackson-databind-2.15.2.jar:jackson-annotations-2.15.2.jar: aggserver.ContentServer 4567 test_file01.txt
