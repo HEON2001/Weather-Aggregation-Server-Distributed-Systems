@@ -11,10 +11,11 @@ content:
 # Run GETClient
 client:
 	java -cp jackson-core-2.15.2.jar:jackson-databind-2.15.2.jar:jackson-annotations-2.15.2.jar: aggserver.GETClient
-# Run test
+# Run tests
 test:
 	java -cp jackson-core-2.15.2.jar:jackson-databind-2.15.2.jar:jackson-annotations-2.15.2.jar: aggserver.test
 # Clean compiled files
 clean:
 	rm -rf aggserver/*.class
+	rm -rf weather.txt
 	rmdir aggserver

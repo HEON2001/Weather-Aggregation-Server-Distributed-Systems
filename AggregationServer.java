@@ -74,7 +74,10 @@ public class AggregationServer {
                         elapsedTime = 0L; //reset timer
                         System.out.println("File is older than 30 seconds, deleting...");
                         f.delete();
+                    }else{
+                        System.out.println("File is still up to date");
                     }
+
                     try{
                     BufferedReader reader = new BufferedReader(new FileReader("weather.txt"));
                     String line = reader.readLine();
