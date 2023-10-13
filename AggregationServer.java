@@ -50,6 +50,9 @@ public class AggregationServer {
 
                 //PUT Request
                 if(Message[0].equals("PUT /weather.json HTTP/1.1") && Message[1].equals("User-Agent: ATOMClient/1/0")){
+                    
+                    elapsedTime = 0L; //reset timer
+                    
                     if(!f.exists()){
                         Packet sPacket = new Packet("201 - HTTP_CREATED");
                         outStream.writeObject(sPacket);
@@ -61,8 +64,6 @@ public class AggregationServer {
                     writer.write(Message[4]);
                     writer.close();
 
-                    elapsedTime = 0L; //reset timer
-
                 }
                 //GET Request
                 else if(Message[0].equals("GET /weather.json HTTP/1.1") && Message[1].equals("User-Agent: ATOMClient/1/0")){
@@ -70,15 +71,26 @@ public class AggregationServer {
                     //if file is older than 30 seconds, delete it
                     elapsedTime = (new Date()).getTime() - startTime;
                     if(elapsedTime >= 30000){
+                        elapsedTime = 0L; //reset timer
+                        System.out.println("File is older than 30 seconds, deleting...");
                         f.delete();
                     }
                     
-                    BufferedReader reader = new BufferedReader(new FileReader("weather.txt"));
+                    try{BufferedReader reader = new BufferedReader(new FileReader("weather.txt"));
                     String line = reader.readLine();
                     ObjectMapper objectMapper = new ObjectMapper();
-                    JsonNode node = objectMapper.readTree(line);
+                    JsonNode node = null;
+                    try{
+                        node = objectMapper.readTree(line);
+                    } catch(Exception e){
+                        Packet sPacket = new Packet("500 - INTERNAL_SERVER_ERROR");
+                        outStream.writeObject(sPacket);
+                    }
                     Packet sPacket = new Packet(node.get(Message[2]).asText());
-                    outStream.writeObject(sPacket);
+                    outStream.writeObject(sPacket);} catch(Exception e){
+                        Packet sPacket = new Packet("204 - HTTP_NO_CONTENT");
+                        outStream.writeObject(sPacket);
+                    }
                 }
                 //Bad Request
                 else{
