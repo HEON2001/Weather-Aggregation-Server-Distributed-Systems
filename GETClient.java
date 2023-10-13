@@ -53,7 +53,7 @@ public class GETClient {
         //Keep scanning for GET requests
         while(true){
             Scanner sc = new Scanner(System.in);
-            System.out.println("Enter request: ");
+            System.out.println("\nEnter request: ");
             String req = sc.nextLine();
             new GETClient(req, port);
         }
